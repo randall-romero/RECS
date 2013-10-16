@@ -10,9 +10,11 @@ function [F,Jx,Jc] = recsEquilibrium(x,s,z,b,f,g,h,params,gridJx,c,e,w,fspace,fu
 % Licensed under the Expat license, see LICENSE.txt
 
 %% Initialization
-[n,d] = size(s);
+%[n,d] = size(s);
+n     = size(s,1);
 x     = reshape(x,[],n)';
 m     = size(x,2);
+mnext = length(ixforward); % Number of next-period response variables
 mf    = sum(ixforward); % Number of forward response variables
 
 %% Evaluate the equilibrium equations and Jacobian
@@ -36,6 +38,7 @@ switch funapprox
     if nargout>=2
       %% With Jacobians
       [snext,~,gx]        = g(ss,xx,ee,params,[1 0 1 0]);
+      d = size(snext,2);
       if extrapolate>=1, snextinterp = snext;
       else
           snextinterp = max(min(snext,fspace.b(ones(n*k,1),:)),fspace.a(ones(n*k,1),:));
@@ -54,7 +57,7 @@ switch funapprox
           [LBnext,UBnext]      = b(snext,params);
           Xnext                = funeval(c,fspace,Bsnext,...
                                          [zeros(1,d); eye(d)]);
-          xnext                = zeros(n*k,m);
+          xnext                = zeros(n*k,mnext);
           xnext(:,ixforward)   = min(max(Xnext(:,:,1),LBnext(:,ixforward)),...
                                      UBnext(:,ixforward));
           xfnextds             = Xnext(:,:,2:end);
@@ -142,7 +145,7 @@ switch funapprox
             snextinterp = max(min(snext,fspace.b(ones(n*k,1),:)), ...
                               fspace.a(ones(n*k,1),:));
           end
-          xnext              = zeros(n*k,m);
+          xnext              = zeros(n*k,mnext);
           xnext(:,ixforward) = min(max(funeval(c,fspace,snextinterp),...
                                        LBnext(:,ixforward)),UBnext(:,ixforward));
           hv                 = h(ss,xx,ee,snext,xnext,params);
