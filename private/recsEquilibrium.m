@@ -10,7 +10,6 @@ function [F,Jx,Jc] = recsEquilibrium(x,s,z,b,f,g,h,params,gridJx,c,e,w,fspace,fu
 % Licensed under the Expat license, see LICENSE.txt
 
 %% Initialization
-%[n,d] = size(s);
 n     = size(s,1);
 x     = reshape(x,[],n)';
 m     = size(x,2);
